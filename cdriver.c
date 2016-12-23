@@ -3,26 +3,22 @@
 #include <linux/kernel.h>         // Contains types, macros, functions(printk) for the kernel
 #include <linux/moduleparam.h>    // Kernel module param
 
-
-#include <linux/types.h>
-#include <linux/kdev_t.h>         // For MKDEV(int major, int minor)
 #include <linux/cdev.h>
-
-#include <linux/fs.h>             // Header for the Linux file system support
-#include <asm/uaccess.h>          // Required for the copy to user function
-#include <linux/device.h>         // Header to support the kernel Driver Model
-
 
 static char *name = "cvijay";
 module_param(name, charp, S_IRUSR);
 
-struct file_operations {
-	.owner = THIS_MODULE,
-}cdriver_fops;
 
 static int __init cdriver_init(void) {
 
-struct cdev *cdev = alloc_cdev();
+	struct cdev *cdev = NULL;
+	cdev = cdev_alloc();
+	if (!cdev) {
+		printk(KERN_ERR "cdev allocation failed...\n");
+		return -1;
+	}
+
+	if (cdev) cdev_del(cdev);
 
 	return 0;
 }
