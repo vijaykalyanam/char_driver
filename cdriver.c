@@ -12,11 +12,8 @@ module_param(name, charp, S_IRUSR);
 static int __init cdriver_init(void) {
 
 	struct cdev *cdev = NULL;
-	cdev = cdev_alloc();
-	if (!cdev) {
-		printk(KERN_ERR "cdev allocation failed...\n");
-		return -1;
-	}
+
+	cdrvier_init(&cdev);
 
 	if (cdev) cdev_del(cdev);
 
