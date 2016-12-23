@@ -16,9 +16,9 @@
 static char *name = "cvijay";
 module_param(name, charp, S_IRUSR);
 
-struct file_operations cdriver_fops {
-	.owner = THIS_MODULE;
-};
+struct file_operations {
+	.owner = THIS_MODULE,
+}cdriver_fops;
 
 static int __init cdriver_init(void) {
 
