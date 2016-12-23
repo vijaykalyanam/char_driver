@@ -5,6 +5,12 @@
 
 #include <linux/cdev.h>
 
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Vijay Kalyanam");
+MODULE_VERSION("23.12.2016");
+MODULE_DESCRIPTION("This is just a Char driver");
+
+
 static char *name = "cvijay";
 module_param(name, charp, S_IRUSR);
 
@@ -13,6 +19,7 @@ static int __init cdriver_init(void) {
 
 	struct cdev *cdev = NULL;
 
+	printk(KERN_ERR "cdriver init\n");
 	cdrvier_init(&cdev);
 
 	if (cdev) cdev_del(cdev);
@@ -34,7 +41,3 @@ module_exit(cdriver_exit);
  * We need to include our licence in the module during compilation.
  * Otherwise module will fail with error saying that kernel taint because of untrusted license.
  */
-MODULE_LICENSE("GPL"); 
-MODULE_AUTHOR("Vijay Kalyanam");
-MODULE_VERSION("23.12.2016");
-MODULE_DESCRIPTION("This is just a Char driver");
