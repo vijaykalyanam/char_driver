@@ -18,7 +18,7 @@ MODULE_DESCRIPTION("This is just a Char driver");
 static char *name = "cvijay";
 module_param(name, charp, S_IRUSR);
 
-extern int cdriver_alloc(struct cdev **);
+int cdriver_alloc(struct cdev **);
 
 static int __init cdriver_init(void) {
 
@@ -38,6 +38,9 @@ static void __exit cdriver_exit(void) {
 	return;
 }
 
-// __init and __exit macro tells the compiler those are load, unload functions. So that compiler place them in separate area in ELF format.
+/*
+ * __init and __exit macro tells the compiler those are load, unload functions.
+ * So that compiler place them in separate area in ELF format.
+ */
 module_init(cdriver_init);
 module_exit(cdriver_exit);
