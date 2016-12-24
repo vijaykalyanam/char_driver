@@ -5,13 +5,13 @@
 
 MODULE_LICENSE("GPL"); 
 
-int cdrvier_init(struct cdev **cdev) {
+int cdrvier_alloc(struct cdev **cdev) {
 
 	*cdev = cdev_alloc();
 	if (!(*cdev)) {
 		printk(KERN_ERR "cdev allocation failed...\n");
 		return -1;
 	}
-printk(KERN_ALERT "function called\n");
+	printk(KERN_ALERT "function called\n");
 	return 0;
 }

@@ -14,13 +14,14 @@ MODULE_DESCRIPTION("This is just a Char driver");
 static char *name = "cvijay";
 module_param(name, charp, S_IRUSR);
 
+int cdriver_alloc(struct cdev **);
 
 static int __init cdriver_init(void) {
 
 	struct cdev *cdev = NULL;
 
 	printk(KERN_ERR "cdriver init\n");
-	cdrvier_init(&cdev);
+	cdrvier_alloc(&cdev);
 
 	if (cdev) cdev_del(cdev);
 
