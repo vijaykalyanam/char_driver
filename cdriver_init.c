@@ -5,7 +5,7 @@
 
 MODULE_LICENSE("GPL"); 
 
-int cdrvier_alloc(struct cdev **cdev) {
+extern int cdrvier_alloc(struct cdev **cdev) {
 
 	*cdev = cdev_alloc();
 	if (!(*cdev)) {
