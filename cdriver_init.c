@@ -8,7 +8,7 @@ MODULE_LICENSE("GPL");
 int cdriver_alloc(struct cdev **cdev) {
 
 	*cdev = cdev_alloc();
-	if (!(*cdev)) {
+	if (*cdev==NULL) {
 		printk(KERN_ERR "cdev allocation failed...\n");
 		return -1;
 	}
@@ -39,6 +39,5 @@ ssize_t cdriver_read(struct file *cfile, char __user *crbuf, size_t size, loff_t
 
 ssize_t cdriver_write(struct file *cfile, const char __user *crbuf, size_t size, loff_t *croffset) {
 	printk("write .... size :%d\n", size);
-	printk(KERN_INFO "%s", crbuf);
 	return 0;
 }
