@@ -39,5 +39,5 @@ ssize_t cdriver_read(struct file *cfile, char __user *crbuf, size_t size, loff_t
 
 ssize_t cdriver_write(struct file *cfile, const char __user *crbuf, size_t size, loff_t *croffset) {
 	printk("write .... size :%d\n", size);
-	return 0;
+	return size;
 }
