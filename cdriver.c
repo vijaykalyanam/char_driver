@@ -112,14 +112,10 @@ del_cdev:
 
 static void __exit cdriver_exit(void) {
 
-	if(cclass)
-		class_destroy(cclass);
-	if(cdevice)
-		device_destroy(cclass, dev);
-		cdev_del(cdev);
-	if (dev)
-		unregister_chrdev_region(dev, count);
-
+	device_destroy(cclass, dev);
+	class_destroy(cclass);
+	cdev_del(cdev);
+	unregister_chrdev_region(dev, count);
 	return;
 }
 
