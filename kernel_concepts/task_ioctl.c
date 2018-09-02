@@ -69,6 +69,7 @@ static long task6_ioctl(struct file *file, unsigned int cmd, unsigned long data)
 				task = create_thread(&drv);
 				if (task) {
 					drv.thread_created = 1;
+					drv.thread_stopped = 1;
 				}
 			}
 			break;
@@ -76,6 +77,7 @@ static long task6_ioctl(struct file *file, unsigned int cmd, unsigned long data)
 			printk("KTHREAD_START\n");
 			printk("[%s] KTHREAD_START\n", __func__);
 			if (drv.thread_created && !drv.thread_started) {
+				drv.thread_stopped = false;
 				printk("Starting thread :%d\n",start_mythread(task));
 			} else {
 				printk("Thread not yet created\n");

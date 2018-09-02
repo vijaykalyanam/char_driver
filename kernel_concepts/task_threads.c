@@ -55,10 +55,6 @@ int mythread(void *data)
 			d->thread_stopped = 1;
 			do_exit(0);
 		}
-		printk("MYTHREAD loop down\n");
-		/* Allow looping and get into sleeping state at the begenning of loop */
-		down(&d->slock);
-		printk("MYTHREAD loop End\n");
 	}
 
 	return 0;
