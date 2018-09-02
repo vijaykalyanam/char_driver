@@ -39,7 +39,13 @@ int mythread(void *data)
 			printk("Stopping Thread\n");
 			do_exit(0);
 		}
-		mdelay(5000);
+		/* Cannot Use mdelay/udelay/ndelay with larger values */
+		/* They will can NMI CPU hook up */ 
+		/* Delay functions pauses the execution */ 
+		//mdelay(5000);
+
+		mdelay(1000);
+		yield();
 		printk(" Thread state :%d\n", (d->thread_stopped) ? 0 : 1);
 	}
 
