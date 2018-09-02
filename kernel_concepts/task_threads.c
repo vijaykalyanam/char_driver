@@ -33,20 +33,32 @@ int mythread(void *data)
 
 	printk("mythread started ......"
 			"First Open Call And it stays until user kills\n");
-	while(1) {
-		/* TODO: Use Atomic Operations/Atomic Bits */
-		if (d->stop_thread) {
-			printk("Stopping Thread\n");
+	while (1) {
+	printk("MYTHREAD loop STARTED\n");
+		if (!down_interruptible(&d->slock)) {
+			/* TODO: Use Atomic Operations/Atomic Bits */
+			if (d->stop_thread) {
+				printk("Stopping Thread\n");
+				d->thread_stopped = 1;
+				do_exit(0);
+			}
+			/* Cannot Use mdelay/udelay/ndelay with larger values */
+			/* They will can NMI CPU hook up */ 
+			/* Delay functions pauses the execution */ 
+			//mdelay(5000);
+			if (1) {
+				mdelay(1000);
+				printk(" Thread state :%d\n", (d->thread_stopped) ? 0 : 1);
+			}
+		} else {
+			printk("Thread Interrupted\n");
+			d->thread_stopped = 1;
 			do_exit(0);
 		}
-		/* Cannot Use mdelay/udelay/ndelay with larger values */
-		/* They will can NMI CPU hook up */ 
-		/* Delay functions pauses the execution */ 
-		//mdelay(5000);
-
-		mdelay(1000);
-		yield();
-		printk(" Thread state :%d\n", (d->thread_stopped) ? 0 : 1);
+		printk("MYTHREAD loop down\n");
+		/* Allow looping and get into sleeping state at the begenning of loop */
+		down(&d->slock);
+		printk("MYTHREAD loop End\n");
 	}
 
 	return 0;

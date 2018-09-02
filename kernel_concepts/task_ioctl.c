@@ -26,7 +26,7 @@ enum state {
 	KTHREAD_STOP = 10,
 	KTHREAD_CREATE,
 	KTHREAD_START,
-	KTHREAD_DELAY,
+	KTHREAD_EVENT,
 	KTHREAD_UNKNOWN = 0xFF,
 };
 
@@ -62,13 +62,14 @@ static long task6_ioctl(struct file *file, unsigned int cmd, unsigned long data)
 	printk("task6_ioctl : cmd :%d\n", cmd);
 	switch(cmd) {
 		case KTHREAD_CREATE:
-			printk("[%s] KTHREAD_CREATE\n", __func__);
+			printk("KTHREAD_CREATE\n");
 			if (drv.thread_started) {
 				printk("Thread already running ...\n");
 			} else {
 				task = create_thread(&drv);
-				if (task)
+				if (task) {
 					drv.thread_created = 1;
+				}
 			}
 			break;
 		case KTHREAD_START: 
@@ -80,9 +81,21 @@ static long task6_ioctl(struct file *file, unsigned int cmd, unsigned long data)
 				printk("Thread not yet created\n");
 			}				
 			break;
-		case KTHREAD_STOP: drv.stop_thread = 1;
-				   printk("KTHREAD Action :%u\n", cmd);
-				   break;
+
+		case KTHREAD_EVENT:
+			printk("KTHREAD_RAISE event\n");
+			up(&drv.slock);
+			break;
+
+		case KTHREAD_STOP: 
+			if (!drv.thread_stopped) {
+				printk("KTHREAD_STOP\n");
+				drv.stop_thread = 1;
+				up(&drv.slock);
+			} else {
+				printk("KTHREAD_STOP -> Thread alread stopped\n");
+			}
+			break;
 		default : printk("Unknown IOCTL Command %u\n", cmd);
 	}
 
@@ -121,6 +134,8 @@ static int __init task1_init(void)
 		memset(&drv, 0, sizeof(drv));
 		memcpy(drv.name, "mythread1", sizeof("mythread1"));
 		drv.thread_stopped = true;
+		sema_init(&drv.slock, 1);
+		down(&drv.slock);
 	} else {
 		pr_info("Misc Char driver registerion failed with error [%d]",
 				ret);
