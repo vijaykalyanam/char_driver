@@ -23,7 +23,7 @@ struct task_struct *task;
  */
 
 enum state {
-	KTHREAD_STOP,
+	KTHREAD_STOP = 10,
 	KTHREAD_CREATE,
 	KTHREAD_START,
 	KTHREAD_DELAY,
