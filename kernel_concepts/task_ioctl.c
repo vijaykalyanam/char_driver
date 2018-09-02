@@ -59,7 +59,7 @@ static ssize_t task6_write_id(struct file *file, const char __user *buf,
 
 static long task6_ioctl(struct file *file, unsigned int cmd, unsigned long data)
 {
-
+	printk("task6_ioctl : cmd :%d\n", cmd);
 	switch(cmd) {
 		case KTHREAD_CREATE:
 			printk("[%s] KTHREAD_CREATE\n", __func__);
@@ -68,10 +68,11 @@ static long task6_ioctl(struct file *file, unsigned int cmd, unsigned long data)
 			} else {
 				task = create_thread(&drv);
 				if (task)
-					drv.thread_started = 1;
+					drv.thread_created = 1;
 			}
 			break;
 		case KTHREAD_START: 
+			printk("KTHREAD_START\n");
 			printk("[%s] KTHREAD_START\n", __func__);
 			if (drv.thread_created && !drv.thread_started) {
 				printk("Starting thread :%d\n",start_mythread(task));
@@ -118,7 +119,8 @@ static int __init task1_init(void)
 		pr_info("Misc Char driver with minor number [%d] registered\n",
 				task6_dev.minor);
 		memset(&drv, 0, sizeof(drv));
-		memcpy(drv.name, "mythread", sizeof("mythread"));
+		memcpy(drv.name, "mythread1", sizeof("mythread1"));
+		drv.thread_stopped = true;
 	} else {
 		pr_info("Misc Char driver registerion failed with error [%d]",
 				ret);
