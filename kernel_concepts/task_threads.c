@@ -53,10 +53,10 @@ int mythread(void *data)
 			/* Delay functions pauses the execution */ 
 			//mdelay(5000);
 			if (1) {
-				mdelay(1000);
 				printk(" Thread state :%d\n", (d->thread_stopped) ? 0 : 1);
+				mdelay(1000);
 			}
-			if (d->lock_completion)
+			if (d->use_completion)
 				complete(&d->cvar);
 		} else {
 			printk("Thread Interrupted\n");

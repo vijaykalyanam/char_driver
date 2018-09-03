@@ -79,6 +79,7 @@ static long task6_ioctl(struct file *file, unsigned int cmd, unsigned long data)
 			printk("KTHREAD_START\n");
 			printk("[%s] KTHREAD_START\n", __func__);
 			if (drv.thread_created && !drv.thread_started) {
+				drv.thread_started = 1;
 				drv.thread_stopped = false;
 				printk("Starting thread :%d\n",start_mythread(task));
 			} else {
@@ -86,6 +87,7 @@ static long task6_ioctl(struct file *file, unsigned int cmd, unsigned long data)
 			}				
 			break;
 
+		case KTHREAD_EVENT:
 		case KTHREAD_EVENT_COMPLETION:
 			if (!drv.thread_started || drv.thread_stopped) {
 				printk("Thread stopped/not created\n");
@@ -100,7 +102,7 @@ static long task6_ioctl(struct file *file, unsigned int cmd, unsigned long data)
 			/* uninterruptible wait */
 			wait_for_completion(&drv.cvar);
 			printk("KTHREAD Task Completed %ld\n", jiffies);
-		case KTHREAD_EVENT:
+			break;
 		case KTHREAD_EVENT_SEMAPHORE:
 			if (!drv.thread_started || drv.thread_stopped) {
 				printk("Thread stopped/not created\n");
@@ -129,7 +131,7 @@ static long task6_ioctl(struct file *file, unsigned int cmd, unsigned long data)
  * from the called thread */
 
 unsigned int lock = 1;
-//module_param(lock, unsigned int, 1);
+//module_param(lock, unsigned int, 0644);
  
 const struct file_operations task6_fops = {
 	.owner	 = THIS_MODULE,
@@ -163,12 +165,11 @@ static int __init task1_init(void)
 		memset(&drv, 0, sizeof(drv));
 		memcpy(drv.name, "mythread1", sizeof("mythread1"));
 
+		sema_init(&drv.slock, 1);
+		down(&drv.slock);
 		if (lock) {
 			init_completion(&drv.cvar);
 			drv.use_completion = true;
-		} else {
-			sema_init(&drv.slock, 1);
-			down(&drv.slock);
 		}
 	} else {
 		pr_info("Misc Char driver registerion failed with error [%d]",
