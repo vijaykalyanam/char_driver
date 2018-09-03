@@ -27,6 +27,8 @@ enum state {
 	KTHREAD_CREATE,
 	KTHREAD_START,
 	KTHREAD_EVENT,
+	KTHREAD_EVENT_SEMAPHORE,
+	KTHREAD_EVENT_COMPLETION,
 	KTHREAD_UNKNOWN = 0xFF,
 };
 
@@ -84,12 +86,31 @@ static long task6_ioctl(struct file *file, unsigned int cmd, unsigned long data)
 			}				
 			break;
 
+		case KTHREAD_EVENT_COMPLETION:
+			if (!drv.thread_started || drv.thread_stopped) {
+				printk("Thread stopped/not created\n");
+				break;
+			}
+			if (!drv.use_completion) {
+				printk("Completion variable is not initialized\n");
+				break;
+			}
+			printk("KTHREAD_RAISE event at %ld\n", jiffies);
+			up(&drv.slock);
+			/* uninterruptible wait */
+			wait_for_completion(&drv.cvar);
+			printk("KTHREAD Task Completed %ld\n", jiffies);
 		case KTHREAD_EVENT:
+		case KTHREAD_EVENT_SEMAPHORE:
+			if (!drv.thread_started || drv.thread_stopped) {
+				printk("Thread stopped/not created\n");
+				break;
+			}
 			printk("KTHREAD_RAISE event\n");
 			up(&drv.slock);
 			break;
 
-		case KTHREAD_STOP: 
+		case KTHREAD_STOP:
 			if (!drv.thread_stopped) {
 				printk("KTHREAD_STOP\n");
 				drv.stop_thread = 1;
@@ -104,6 +125,12 @@ static long task6_ioctl(struct file *file, unsigned int cmd, unsigned long data)
 	return 0;
 }
 
+/* lock is true, calling thread waits for event result 
+ * from the called thread */
+
+unsigned int lock = 1;
+//module_param(lock, unsigned int, 1);
+ 
 const struct file_operations task6_fops = {
 	.owner	 = THIS_MODULE,
 	.read    = task6_read_id,
@@ -135,9 +162,14 @@ static int __init task1_init(void)
 				task6_dev.minor);
 		memset(&drv, 0, sizeof(drv));
 		memcpy(drv.name, "mythread1", sizeof("mythread1"));
-		drv.thread_stopped = true;
-		sema_init(&drv.slock, 1);
-		down(&drv.slock);
+
+		if (lock) {
+			init_completion(&drv.cvar);
+			drv.use_completion = true;
+		} else {
+			sema_init(&drv.slock, 1);
+			down(&drv.slock);
+		}
 	} else {
 		pr_info("Misc Char driver registerion failed with error [%d]",
 				ret);
