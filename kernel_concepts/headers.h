@@ -1,9 +1,11 @@
 #include <linux/completion.h>
+#include <linux/semaphore.h>
 #include <linux/delay.h>
 
 struct mydriver {
 	char name[32];	
-	struct completion c;
+	struct semaphore slock; 
+	struct completion cvar;
 	struct task_struct ts;
 	bool thread_created;
 	bool thread_started; 
