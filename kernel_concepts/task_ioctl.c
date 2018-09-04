@@ -29,6 +29,7 @@ enum state {
 	KTHREAD_EVENT,
 	KTHREAD_EVENT_SEMAPHORE,
 	KTHREAD_EVENT_COMPLETION,
+	KTHREAD_WAIT_QUEUE,
 	KTHREAD_UNKNOWN = 0xFF,
 };
 
@@ -112,6 +113,23 @@ static long task6_ioctl(struct file *file, unsigned int cmd, unsigned long data)
 			up(&drv.slock);
 			break;
 
+		case KTHREAD_WAIT_QUEUE:
+			if (!drv.thread_started || drv.thread_stopped) {
+				printk("Thread stopped/not created\n");
+				break;
+			}
+			if (!drv.use_wait_queue) {
+				printk("Wait queue is not initialized\n");
+				break;
+			} else {
+				printk("KTHREAD_RAISE event at %ld\n", jiffies);
+				drv.posted_event = 1;
+				wake_up_interruptible(&drv.waitq2);
+
+				wait_event_interruptible(drv.waitq1, drv.addressed_event == 1); 
+				printk("KTHREAD Task Completed %ld\n", jiffies);
+			}
+			break;
 		case KTHREAD_STOP:
 			if (!drv.thread_stopped) {
 				printk("KTHREAD_STOP\n");
@@ -167,9 +185,11 @@ static int __init task1_init(void)
 
 		sema_init(&drv.slock, 1);
 		down(&drv.slock);
-		if (lock) {
+		if (lock = 0) {
 			init_completion(&drv.cvar);
 			drv.use_completion = true;
+		} else if (drv.use_wait_queue = 1) {
+			init_waitqueue_head(&drv.waitq1);
 		}
 	} else {
 		pr_info("Misc Char driver registerion failed with error [%d]",
