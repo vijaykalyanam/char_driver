@@ -23,10 +23,11 @@ extern struct mydriver drv;
 
 int mythread(void *data)
 {
-	printk("MYTHREAD STARTED\n");
 	struct mydriver *d;
 
 	d = (struct mydriver *)data;
+
+	printk("MYTHREAD STARTED\n");
 
 	if (data == NULL)
 		return -1;
@@ -40,18 +41,29 @@ int mythread(void *data)
 			if (d->stop_thread) {
 				printk("Stopping Thread\n");
 				d->thread_stopped = 1;
+				if (d->lock_semaphore)
+					up(&d->slock);
+				else if (d->lock_completion)
+					complete(&d->cvar);
+				d->thread_stopped = 1;
 				do_exit(0);
-			}
+			} else
 			/* Cannot Use mdelay/udelay/ndelay with larger values */
 			/* They will can NMI CPU hook up */ 
 			/* Delay functions pauses the execution */ 
 			//mdelay(5000);
 			if (1) {
-				mdelay(1000);
 				printk(" Thread state :%d\n", (d->thread_stopped) ? 0 : 1);
+				mdelay(1000);
 			}
+			if (d->use_completion)
+				complete(&d->cvar);
 		} else {
 			printk("Thread Interrupted\n");
+			if (d->lock_semaphore)
+				up(&d->slock);
+			else if (d->lock_completion)
+				complete(&d->cvar);
 			d->thread_stopped = 1;
 			do_exit(0);
 		}
