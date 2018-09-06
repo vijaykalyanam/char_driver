@@ -136,8 +136,8 @@ static int __init task1_init(void)
 		memset(&drv, 0, sizeof(drv));
 		memcpy(drv.name, "mythread1", sizeof("mythread1"));
 		drv.thread_stopped = true;
-		sema_init(&drv.slock, 1);
-		down(&drv.slock);
+		sema_init(&drv.slock, 0);
+		//down(&drv.slock);
 	} else {
 		pr_info("Misc Char driver registerion failed with error [%d]",
 				ret);
