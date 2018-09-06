@@ -164,10 +164,10 @@ static int __init task1_init(void)
 				task6_dev.minor);
 		memset(&drv, 0, sizeof(drv));
 		memcpy(drv.name, "mythread1", sizeof("mythread1"));
-
-		sema_init(&drv.slock, 1);
-		down(&drv.slock);
-		if (lock) {
+		drv.thread_stopped = true;
+		sema_init(&drv.slock, 0);
+		//down(&drv.slock);
+	 	if (lock) {
 			init_completion(&drv.cvar);
 			drv.use_completion = true;
 		}
